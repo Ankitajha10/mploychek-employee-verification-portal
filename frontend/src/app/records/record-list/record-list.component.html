@@ -1,0 +1,183 @@
+<app-navbar></app-navbar>
+
+<div class="d-flex layout-container">
+  <app-sidebar class="d-none d-lg-block"></app-sidebar>
+
+  <main class="flex-grow-1 p-3 p-md-4 p-xl-5 bg-light overflow-auto">
+    <div class="container-fluid p-0">
+      <!-- Title Bar -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+          <h2 class="fw-bold text-dark mb-1">
+            {{ isAdmin ? 'All Employment Records' : 'My Employment History' }}
+          </h2>
+          <p class="text-muted small mb-0">
+            {{ isAdmin ? 'Review, audit, and approve candidate background verification records.' : 'Verified credentials registered under your profile.' }}
+          </p>
+        </div>
+
+        <div class="d-flex align-items-center bg-white p-2 rounded-3 border shadow-sm">
+          <span class="small text-muted me-2">
+            <i class="bi bi-stopwatch text-primary me-1"></i> API Delay:
+          </span>
+          <select
+            class="form-select form-select-sm w-auto d-inline-block me-2"
+            [(ngModel)]="selectedDelay"
+          >
+            <option [ngValue]="0">0s (Instant)</option>
+            <option [ngValue]="1000">1s (1000ms)</option>
+            <option [ngValue]="2000">2s (2000ms)</option>
+            <option [ngValue]="3000">3s (3000ms)</option>
+          </select>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadRecords()">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters Toolbar -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3 p-md-4">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-7">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  [(ngModel)]="searchTerm"
+                  (keyup)="applyFilters()"
+                  class="form-control border-start-0"
+                  placeholder="Search by company, position, or employee name..."
+                />
+              </div>
+            </div>
+
+            <div class="col-md-5">
+              <select
+                [(ngModel)]="filterStatus"
+                (change)="applyFilters()"
+                class="form-select"
+              >
+                <option value="">All Verification Statuses</option>
+                <option value="VERIFIED">VERIFIED</option>
+                <option value="IN_REVIEW">IN_REVIEW</option>
+                <option value="PENDING">PENDING</option>
+                <option value="REJECTED">REJECTED</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Records Table Card -->
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom-0 p-4 pb-0 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold text-dark mb-0">Record Ledger</h5>
+          <span class="badge bg-light text-dark border">{{ filteredRecords.length }} Displayed</span>
+        </div>
+
+        <div class="card-body p-4 pt-3">
+          <!-- Error alert -->
+          <div *ngIf="errorMessage" class="alert alert-danger rounded-3" role="alert">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Loading Skeleton -->
+          <app-skeleton-loader
+            *ngIf="isLoading"
+            type="table"
+            [rows]="4"
+            [columns]="6"
+            message="Retrieving verification ledger from API (Delay: {{ selectedDelay }}ms)..."
+          ></app-skeleton-loader>
+
+          <!-- Table -->
+          <div *ngIf="!isLoading && !errorMessage && filteredRecords.length > 0" class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted text-uppercase">
+                  <th scope="col" class="py-3">Record ID</th>
+                  <th scope="col" class="py-3" *ngIf="isAdmin">Employee</th>
+                  <th scope="col" class="py-3">Company</th>
+                  <th scope="col" class="py-3">Position</th>
+                  <th scope="col" class="py-3">Dates</th>
+                  <th scope="col" class="py-3">Status</th>
+                  <th scope="col" class="py-3 text-end" *ngIf="isAdmin">Verification Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let record of filteredRecords">
+                  <td class="font-monospace small text-muted">
+                    #{{ record._id ? record._id.substring(record._id.length - 6) : 'REC' }}
+                  </td>
+                  <td *ngIf="isAdmin">
+                    <span class="fw-semibold text-dark">{{ getUserDisplayName(record.userId) }}</span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="company-icon-sm me-2 d-flex align-items-center justify-content-center text-primary">
+                        <i class="bi bi-building"></i>
+                      </div>
+                      <span class="fw-bold text-dark">{{ record.company }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="text-secondary">{{ record.position }}</span>
+                  </td>
+                  <td class="small text-muted">
+                    {{ record.startDate }} → {{ record.endDate || 'Present' }}
+                  </td>
+                  <td>
+                    <span [class]="'badge-status ' + getStatusBadgeClass(record.verificationStatus)">
+                      {{ record.verificationStatus }}
+                    </span>
+                  </td>
+                  <td class="text-end" *ngIf="isAdmin">
+                    <div class="btn-group btn-group-sm">
+                      <button
+                        type="button"
+                        class="btn btn-outline-success"
+                        (click)="updateRecordStatus(record, 'VERIFIED')"
+                        [disabled]="record.verificationStatus === 'VERIFIED'"
+                        title="Approve / Mark Verified"
+                      >
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline-warning"
+                        (click)="updateRecordStatus(record, 'IN_REVIEW')"
+                        [disabled]="record.verificationStatus === 'IN_REVIEW'"
+                        title="Mark In Review"
+                      >
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        (click)="updateRecordStatus(record, 'REJECTED')"
+                        [disabled]="record.verificationStatus === 'REJECTED'"
+                        title="Mark Rejected"
+                      >
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoading && !errorMessage && filteredRecords.length === 0" class="text-center py-5">
+            <i class="bi bi-file-earmark-x fs-1 text-muted d-block mb-2"></i>
+            <h6 class="fw-bold text-dark">No records found matching criteria</h6>
+            <p class="text-muted small">Try modifying search keyword or status filter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

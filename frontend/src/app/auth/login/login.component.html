@@ -1,0 +1,221 @@
+<div class="login-page d-flex flex-column justify-content-between py-4 px-3">
+  <!-- Top / Centered Container -->
+  <div class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 my-auto">
+    <div class="login-card shadow-lg bg-white rounded-4 overflow-hidden border-0">
+      <div class="row g-0">
+        <!-- Left Branding Panel (Desktop) -->
+        <div class="col-lg-5 d-none d-lg-flex flex-column justify-content-between p-4 p-xl-5 brand-side text-white">
+          <div>
+            <div class="d-flex align-items-center mb-4">
+              <div class="brand-icon-box bg-white text-primary rounded-3 d-flex align-items-center justify-content-center me-2 shadow-sm">
+                <i class="bi bi-shield-check fs-4"></i>
+              </div>
+              <span class="fs-4 fw-bold tracking-tight">MPloy<span class="text-info">Chek</span></span>
+            </div>
+
+            <h3 class="fw-bold mb-3">Employee Verification Portal</h3>
+            <p class="text-white-50 small mb-4">
+              Role-based employment record management and digital background verification system.
+            </p>
+
+            <div class="d-flex flex-column gap-3 feature-list">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-patch-check-fill text-info me-2 fs-5 mt-n1"></i>
+                <div>
+                  <strong class="d-block small">Role-Based Access Control</strong>
+                  <span class="text-white-50 small">Strict separation between General Employees and Administrators.</span>
+                </div>
+              </div>
+              <div class="d-flex align-items-start">
+                <i class="bi bi-shield-lock-fill text-info me-2 fs-5 mt-n1"></i>
+                <div>
+                  <strong class="d-block small">Bcrypt & JWT Security</strong>
+                  <span class="text-white-50 small">Secure salted hashing with stateless token authentication.</span>
+                </div>
+              </div>
+              <div class="d-flex align-items-start">
+                <i class="bi bi-cpu-fill text-info me-2 fs-5 mt-n1"></i>
+                <div>
+                  <strong class="d-block small">Asynchronous Verification</strong>
+                  <span class="text-white-50 small">Demonstrated through real-time authenticated dashboard processing.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-top border-light border-opacity-25 text-white-50 small">
+            <i class="bi bi-award me-1"></i> Software Engineering Coding Assessment
+          </div>
+        </div>
+
+        <!-- Right Form Panel -->
+        <div class="col-lg-7 p-4 p-sm-5 d-flex flex-column justify-content-center">
+          <div>
+            <!-- Mobile Brand Header -->
+            <div class="d-flex align-items-center mb-4 d-lg-none">
+              <div class="brand-icon-box bg-primary text-white rounded-3 d-flex align-items-center justify-content-center me-2 shadow-sm">
+                <i class="bi bi-shield-check fs-4"></i>
+              </div>
+              <span class="fs-4 fw-bold text-dark">MPloy<span class="text-primary">Chek</span></span>
+            </div>
+
+            <!-- Header Titles -->
+            <div class="mb-4">
+              <h4 class="fw-bold text-dark mb-1">Sign In</h4>
+              <p class="text-muted small mb-0">Enter your credentials and select your authorized role.</p>
+            </div>
+
+            <!-- Error Alert Banner -->
+            <div
+              *ngIf="errorMessage"
+              class="alert alert-danger py-2 px-3 small d-flex align-items-center mb-3 rounded-3"
+              role="alert"
+            >
+              <i class="bi bi-exclamation-octagon-fill me-2 fs-5 flex-shrink-0"></i>
+              <div>{{ errorMessage }}</div>
+            </div>
+
+            <!-- Demo Accounts Section (Subtle Chips) -->
+            <div class="demo-section p-3 mb-4 rounded-3 border bg-light bg-opacity-75">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-semibold text-secondary">
+                  <i class="bi bi-person-badge-fill me-1 text-primary"></i> Demo Accounts
+                </span>
+                <span class="text-muted" style="font-size: 0.72rem;">Click to pre-fill</span>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm demo-chip"
+                  (click)="fillDemoCredentials('ADMIN', 'admin', 'Admin@123')"
+                >
+                  <i class="bi bi-shield-lock me-1 text-primary"></i> Admin
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm demo-chip"
+                  (click)="fillDemoCredentials('GENERAL_USER', 'ankita', 'User@123')"
+                >
+                  <i class="bi bi-person me-1 text-secondary"></i> Ankita
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm demo-chip"
+                  (click)="fillDemoCredentials('GENERAL_USER', 'rahul', 'User@123')"
+                >
+                  <i class="bi bi-person me-1 text-secondary"></i> Rahul
+                </button>
+              </div>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <!-- User ID / Username -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold text-dark mb-1">User ID / Username</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0 text-muted">
+                    <i class="bi bi-person"></i>
+                  </span>
+                  <input
+                    type="text"
+                    formControlName="username"
+                    class="form-control border-start-0"
+                    [ngClass]="{
+                      'is-invalid': loginForm.get('username')?.touched && loginForm.get('username')?.invalid
+                    }"
+                    placeholder="Enter username"
+                    autocomplete="username"
+                  />
+                </div>
+                <div
+                  *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.hasError('required')"
+                  class="text-danger small mt-1"
+                >
+                  Username is required.
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold text-dark mb-1">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0 text-muted">
+                    <i class="bi bi-key"></i>
+                  </span>
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    class="form-control border-start-0 border-end-0"
+                    [ngClass]="{
+                      'is-invalid': loginForm.get('password')?.touched && loginForm.get('password')?.invalid
+                    }"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    class="input-group-text bg-white border-start-0 text-muted cursor-pointer"
+                    (click)="togglePasswordVisibility()"
+                    tabindex="-1"
+                    title="Toggle password visibility"
+                  >
+                    <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                  </button>
+                </div>
+                <div
+                  *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')"
+                  class="text-danger small mt-1"
+                >
+                  Password is required.
+                </div>
+              </div>
+
+              <!-- Role -->
+              <div class="mb-4">
+                <label class="form-label small fw-semibold text-dark mb-1">Role</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0 text-muted">
+                    <i class="bi bi-shield-check"></i>
+                  </span>
+                  <select
+                    formControlName="role"
+                    class="form-select border-start-0"
+                    [ngClass]="{
+                      'is-invalid': loginForm.get('role')?.touched && loginForm.get('role')?.invalid
+                    }"
+                  >
+                    <option value="GENERAL_USER">General User</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+                <div class="form-text text-muted mt-1 small">
+                  Your selected role will be verified against your account permissions.
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center shadow-sm"
+                [disabled]="isLoading"
+              >
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <span *ngIf="isLoading">Authenticating...</span>
+                <span *ngIf="!isLoading">
+                  <i class="bi bi-box-arrow-in-right me-2"></i> Sign In to Portal
+                </span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtle Page Footer -->
+  <footer class="text-center py-3 text-secondary small">
+    <div class="fw-semibold" style="color: #cbd5e1;">MPloyChek Employee Verification Portal</div>
+    <div style="font-size: 0.75rem; color: #94a3b8;">Software Engineering Assessment • Demo Environment</div>
+  </footer>
+</div>

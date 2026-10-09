@@ -1,0 +1,37 @@
+.layout-container {
+  min-height: calc(100vh - 61px);
+}
+
+.company-icon-sm {
+  width: 28px;
+  height: 28px;
+  background-color: #f1f5f9;
+  border-radius: 6px;
+}
+
+.badge-status {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+
+.badge-status-verified {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-status-review {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.badge-status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

@@ -1,0 +1,64 @@
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+.login-card {
+  max-width: 920px;
+  width: 100%;
+}
+
+.brand-side {
+  background: linear-gradient(160deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+}
+
+.brand-icon-box {
+  width: 44px;
+  height: 44px;
+}
+
+.demo-section {
+  border: 1px solid #e2e8f0;
+}
+
+.demo-chip {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  border-color: #cbd5e1;
+  font-size: 0.92rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+}

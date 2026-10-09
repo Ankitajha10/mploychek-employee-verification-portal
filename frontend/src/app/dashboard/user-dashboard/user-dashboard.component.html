@@ -1,0 +1,268 @@
+<app-navbar></app-navbar>
+
+<div class="d-flex layout-container">
+  <!-- Sidebar Navigation -->
+  <app-sidebar class="d-none d-lg-block"></app-sidebar>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow-1 p-3 p-md-4 p-xl-5 bg-light overflow-auto">
+    <div class="container-fluid p-0">
+      <!-- Page Title & Header -->
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-2">
+        <div>
+          <h2 class="fw-bold text-dark mb-1">Employee Verification Dashboard</h2>
+          <p class="text-muted small mb-0">
+            Welcome back, <span class="fw-semibold text-primary">{{ currentUser?.name }}</span>. Review your verified employment history and background verification status.
+          </p>
+        </div>
+
+        <!-- Professional API Response Delay Control -->
+        <div class="card border-0 shadow-sm p-3 bg-white rounded-3">
+          <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+            <div>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-stopwatch text-primary me-2 fs-5"></i>
+                <label for="userApiDelaySelect" class="small fw-semibold text-dark mb-0 me-2">
+                  API Response Delay:
+                </label>
+                <select
+                  id="userApiDelaySelect"
+                  class="form-select form-select-sm d-inline-block w-auto"
+                  [(ngModel)]="selectedDelay"
+                >
+                  <option [ngValue]="0">0s (Instant)</option>
+                  <option [ngValue]="1000">1s (1000ms)</option>
+                  <option [ngValue]="2000">2s (2000ms)</option>
+                  <option [ngValue]="3000">3s (3000ms)</option>
+                </select>
+              </div>
+              <div class="text-muted mt-1" style="font-size: 0.72rem;">
+                Simulate network latency to demonstrate asynchronous loading.
+              </div>
+            </div>
+
+            <div class="ms-sm-auto">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm d-flex align-items-center shadow-sm px-3"
+                (click)="loadRecords()"
+                [disabled]="isLoading"
+              >
+                <i class="bi bi-arrow-clockwise me-1" [ngClass]="{ 'spin': isLoading }"></i>
+                <span>Refresh Records</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile Card -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4" id="profile-section">
+        <div class="card-body p-4">
+          <div class="row align-items-center gy-3">
+            <div class="col-md-auto text-center text-md-start">
+              <div class="avatar-box bg-primary text-white rounded-4 d-inline-flex align-items-center justify-content-center shadow-sm">
+                <span class="fs-2 fw-bold">{{ currentUser?.name?.charAt(0) }}</span>
+              </div>
+            </div>
+            <div class="col-md">
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-1 justify-content-center justify-content-md-start">
+                <h4 class="fw-bold text-dark mb-0">{{ currentUser?.name }}</h4>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                  {{ currentUser?.role === 'GENERAL_USER' ? 'General Employee' : 'Admin' }}
+                </span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                  <i class="bi bi-check-circle-fill me-1"></i> {{ currentUser?.status }}
+                </span>
+              </div>
+              <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-2 text-muted small mt-2">
+                <div>
+                  <span class="fw-semibold text-secondary d-block">Employee ID:</span>
+                  <span class="text-dark font-monospace">{{ currentUser?.employeeId }}</span>
+                </div>
+                <div>
+                  <span class="fw-semibold text-secondary d-block">Email Address:</span>
+                  <span class="text-dark">{{ currentUser?.email }}</span>
+                </div>
+                <div>
+                  <span class="fw-semibold text-secondary d-block">Department:</span>
+                  <span class="text-dark">{{ currentUser?.department }}</span>
+                </div>
+                <div>
+                  <span class="fw-semibold text-secondary d-block">Username:</span>
+                  <span class="text-dark font-monospace">{{ currentUser?.username }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Record Statistics Summary Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold">Total Records</span>
+                <h3 class="fw-bold text-dark mb-0 mt-1">{{ totalRecordsCount }}</h3>
+              </div>
+              <div class="stat-icon-circle bg-light text-primary">
+                <i class="bi bi-folder2-open fs-5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold">Verified</span>
+                <h3 class="fw-bold text-success mb-0 mt-1">{{ verifiedCount }}</h3>
+              </div>
+              <div class="stat-icon-circle bg-success-subtle text-success">
+                <i class="bi bi-patch-check-fill fs-5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold">Under Review</span>
+                <h3 class="fw-bold text-warning mb-0 mt-1">{{ inReviewCount }}</h3>
+              </div>
+              <div class="stat-icon-circle bg-warning-subtle text-warning">
+                <i class="bi bi-search fs-5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold">Pending Check</span>
+                <h3 class="fw-bold text-secondary mb-0 mt-1">{{ pendingCount }}</h3>
+              </div>
+              <div class="stat-icon-circle bg-secondary-subtle text-secondary">
+                <i class="bi bi-clock-history fs-5"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Records Section -->
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom-0 p-4 pb-0 d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold text-dark mb-0">Employment History Records</h5>
+            <span class="text-muted small">
+              Official records retrieved from <code>GET /api/records</code> (scoped to your account).
+            </span>
+          </div>
+          <span class="badge bg-light text-dark border">
+            {{ records.length }} Entries Found
+          </span>
+        </div>
+
+        <div class="card-body p-4 pt-3">
+          <!-- API Error State -->
+          <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center my-3 rounded-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+            <div class="flex-grow-1">
+              <strong>Error Loading Records:</strong> {{ errorMessage }}
+            </div>
+            <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadRecords()">Retry</button>
+          </div>
+
+          <!-- Loading Skeleton State -->
+          <app-skeleton-loader
+            *ngIf="isLoading"
+            type="table"
+            [rows]="3"
+            [columns]="7"
+            message="Loading employment records from backend API (Asynchronous delay: {{ selectedDelay }}ms)..."
+          ></app-skeleton-loader>
+
+          <!-- Records Table (Visible when not loading and records exist) -->
+          <div *ngIf="!isLoading && !errorMessage && records.length > 0" class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="text-secondary small text-uppercase">
+                  <th scope="col" class="py-3">Record ID</th>
+                  <th scope="col" class="py-3">Company</th>
+                  <th scope="col" class="py-3">Position</th>
+                  <th scope="col" class="py-3">Type</th>
+                  <th scope="col" class="py-3">Tenure</th>
+                  <th scope="col" class="py-3">Verification Status</th>
+                  <th scope="col" class="py-3">HR Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let record of records">
+                  <td class="font-monospace small text-muted">
+                    #{{ record._id ? record._id.substring(record._id.length - 6) : 'REC' }}
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="company-icon-box me-2 d-flex align-items-center justify-content-center text-primary">
+                        <i class="bi bi-building"></i>
+                      </div>
+                      <span class="fw-semibold text-dark">{{ record.company }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="text-secondary">{{ record.position }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border">
+                      {{ getEmploymentTypeLabel(record.employmentType) }}
+                    </span>
+                  </td>
+                  <td class="small text-secondary">
+                    <div>
+                      <i class="bi bi-calendar3 me-1 text-muted"></i>
+                      {{ record.startDate }} → {{ record.endDate || 'Present' }}
+                    </div>
+                  </td>
+                  <td>
+                    <span [class]="'badge-status ' + getStatusBadgeClass(record.verificationStatus)">
+                      <i
+                        class="bi me-1"
+                        [ngClass]="{
+                          'bi-check-circle-fill': record.verificationStatus === 'VERIFIED',
+                          'bi-hourglass-split': record.verificationStatus === 'PENDING',
+                          'bi-eye-fill': record.verificationStatus === 'IN_REVIEW',
+                          'bi-x-circle-fill': record.verificationStatus === 'REJECTED'
+                        }"
+                      ></i>
+                      {{ record.verificationStatus }}
+                    </span>
+                  </td>
+                  <td class="small text-muted" style="max-width: 250px;">
+                    {{ record.verificationNotes || 'No notes attached.' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoading && !errorMessage && records.length === 0" class="text-center py-5">
+            <div class="empty-icon-circle mx-auto mb-3 bg-light text-muted d-flex align-items-center justify-content-center">
+              <i class="bi bi-folder-x fs-1"></i>
+            </div>
+            <h5 class="fw-bold text-dark">No Employment Records Found</h5>
+            <p class="text-muted small mb-3">You do not have any registered employment history on file.</p>
+            <button class="btn btn-outline-primary btn-sm" (click)="loadRecords()">
+              <i class="bi bi-arrow-clockwise me-1"></i> Refresh Table
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

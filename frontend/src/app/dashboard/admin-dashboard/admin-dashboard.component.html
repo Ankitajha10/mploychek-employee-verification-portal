@@ -1,0 +1,257 @@
+<app-navbar></app-navbar>
+
+<div class="d-flex layout-container">
+  <app-sidebar class="d-none d-lg-block"></app-sidebar>
+
+  <main class="flex-grow-1 p-3 p-md-4 p-xl-5 bg-light overflow-auto">
+    <div class="container-fluid p-0">
+      <!-- Header Bar -->
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-2">
+        <div>
+          <div class="d-flex align-items-center gap-2">
+            <h2 class="fw-bold text-dark mb-1">Admin Portal Overview</h2>
+            <span class="badge bg-indigo text-white px-2 py-1">ADMINISTRATOR</span>
+          </div>
+          <p class="text-muted small mb-0">
+            Real-time verification metrics, user access management, and organizational audit logs.
+          </p>
+        </div>
+
+        <!-- Professional API Response Delay Control -->
+        <div class="card border-0 shadow-sm p-3 bg-white rounded-3">
+          <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+            <div>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-stopwatch text-primary me-2 fs-5"></i>
+                <label for="adminApiDelaySelect" class="small fw-semibold text-dark mb-0 me-2">
+                  API Response Delay:
+                </label>
+                <select
+                  id="adminApiDelaySelect"
+                  class="form-select form-select-sm d-inline-block w-auto"
+                  [(ngModel)]="selectedDelay"
+                >
+                  <option [ngValue]="0">0s (Instant)</option>
+                  <option [ngValue]="1000">1s (1000ms)</option>
+                  <option [ngValue]="2000">2s (2000ms)</option>
+                  <option [ngValue]="3000">3s (3000ms)</option>
+                </select>
+              </div>
+              <div class="text-muted mt-1" style="font-size: 0.72rem;">
+                Simulate network latency to demonstrate asynchronous loading.
+              </div>
+            </div>
+
+            <div class="ms-sm-auto">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm d-flex align-items-center shadow-sm px-3"
+                (click)="refreshAll()"
+                [disabled]="isLoadingStats || isLoadingUsers"
+              >
+                <i class="bi bi-arrow-clockwise me-1" [ngClass]="{ 'spin': isLoadingStats || isLoadingUsers }"></i>
+                <span>Refresh Data</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="errorMessage" class="alert alert-danger py-2 px-3 small rounded-3 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+      </div>
+
+      <!-- Skeleton for Stats -->
+      <app-skeleton-loader
+        *ngIf="isLoadingStats"
+        type="cards"
+        [rows]="6"
+        message="Loading platform analytics (Asynchronous delay: {{ selectedDelay }}ms)..."
+      ></app-skeleton-loader>
+
+      <!-- Stats Grid -->
+      <div *ngIf="!isLoadingStats && stats" class="row g-3 mb-4">
+        <!-- Total Users -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold text-uppercase">Total Users</span>
+                <h2 class="fw-bold text-dark mb-0 mt-1">{{ stats.totalUsers }}</h2>
+                <span class="text-success small fw-medium">
+                  <i class="bi bi-check-circle me-1"></i>{{ stats.activeUsers }} Active
+                </span>
+              </div>
+              <div class="metric-icon-box bg-primary-subtle text-primary">
+                <i class="bi bi-people-fill fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- General Users -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold text-uppercase">General Employees</span>
+                <h2 class="fw-bold text-dark mb-0 mt-1">{{ stats.totalGeneralUsers }}</h2>
+                <span class="text-muted small">Registered in Portal</span>
+              </div>
+              <div class="metric-icon-box bg-info-subtle text-info">
+                <i class="bi bi-person-badge-fill fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admins -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold text-uppercase">Administrators</span>
+                <h2 class="fw-bold text-dark mb-0 mt-1">{{ stats.totalAdmins }}</h2>
+                <span class="text-muted small">Elevated RBAC Roles</span>
+              </div>
+              <div class="metric-icon-box bg-purple-subtle text-purple">
+                <i class="bi bi-shield-lock-fill fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employment Records -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="text-muted small fw-semibold text-uppercase">Total Records</span>
+                <h2 class="fw-bold text-dark mb-0 mt-1">{{ stats.totalRecords }}</h2>
+                <span class="text-success small fw-medium">
+                  <i class="bi bi-patch-check-fill me-1"></i>{{ stats.verifiedRecords }} Verified
+                </span>
+              </div>
+              <div class="metric-icon-box bg-success-subtle text-success">
+                <i class="bi bi-file-earmark-check-fill fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification Status Breakdown Bar -->
+      <div *ngIf="!isLoadingStats && stats" class="card border-0 shadow-sm rounded-4 mb-4 p-4 bg-white">
+        <h6 class="fw-bold text-dark mb-3">Verification Pipeline Breakdown</h6>
+        <div class="row g-3 text-center">
+          <div class="col-3 border-end">
+            <div class="fs-4 fw-bold text-success">{{ stats.verifiedRecords }}</div>
+            <div class="text-muted small">Verified</div>
+          </div>
+          <div class="col-3 border-end">
+            <div class="fs-4 fw-bold text-warning">{{ stats.inReviewRecords }}</div>
+            <div class="text-muted small">In Review</div>
+          </div>
+          <div class="col-3 border-end">
+            <div class="fs-4 fw-bold text-secondary">{{ stats.pendingRecords }}</div>
+            <div class="text-muted small">Pending</div>
+          </div>
+          <div class="col-3">
+            <div class="fs-4 fw-bold text-danger">{{ stats.rejectedRecords }}</div>
+            <div class="text-muted small">Rejected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Shortcuts & Recent Users Table -->
+      <div class="row g-4">
+        <!-- Left: Recent Users Preview -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="fw-bold text-dark mb-0">Recent User Registrations</h5>
+                <span class="text-muted small">Latest user accounts provisioned in database</span>
+              </div>
+              <a routerLink="/admin/users" class="btn btn-sm btn-outline-primary">
+                Manage All Users <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+            <div class="card-body p-4 pt-2">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr class="small text-muted text-uppercase">
+                      <th>Employee</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let u of recentUsers">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="avatar-mini me-2 d-flex align-items-center justify-content-center fw-bold">
+                            {{ u.name.charAt(0) }}
+                          </div>
+                          <div>
+                            <span class="fw-semibold text-dark d-block">{{ u.name }}</span>
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ u.email }}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" [ngClass]="u.role === 'ADMIN' ? 'bg-indigo text-white' : 'bg-primary-subtle text-primary'">
+                          {{ u.role === 'ADMIN' ? 'Admin' : 'General' }}
+                        </span>
+                      </td>
+                      <td class="small text-secondary">{{ u.department }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="u.status === 'ACTIVE' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                          {{ u.status }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Management Shortcuts & Recent Records -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="fw-bold text-dark mb-0">Verification Stream</h5>
+                <span class="text-muted small">Recent employment record entries</span>
+              </div>
+              <a routerLink="/admin/records" class="btn btn-sm btn-outline-primary">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+            <div class="card-body p-4 pt-2">
+              <div class="d-flex flex-column gap-3">
+                <div *ngFor="let r of recentRecords" class="p-3 rounded-3 border bg-light bg-opacity-50">
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <strong class="text-dark small">{{ r.company }}</strong>
+                    <span [class]="'badge-status ' + getStatusBadge(r.verificationStatus)">
+                      {{ r.verificationStatus }}
+                    </span>
+                  </div>
+                  <div class="text-secondary small">{{ r.position }}</div>
+                  <div class="text-muted small mt-1" style="font-size: 0.72rem;">
+                    <i class="bi bi-calendar3 me-1"></i> {{ r.startDate }} → {{ r.endDate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
